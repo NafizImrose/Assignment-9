@@ -8,19 +8,20 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import PrivateRoute from "@/components/PrivateRoute";
 import { useAuth } from "@/context/AuthContext";
 import { getUserListings } from "@/lib/mockData";
+import { authClient } from "@/lib/auth-client";
 
 function MyListingsContent() {
-  const { user } = useAuth();
+  const { data: session, isPending } = authClient.useSession();
   const [loading, setLoading] = useState(true);
   const [listings, setListings] = useState([]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setListings(getUserListings(user.id));
+      setListings(getUserListings(session.user.id));
       setLoading(false);
     }, 500);
     return () => clearTimeout(timer);
-  }, [user.id]);
+  }, [session.user.id]);
 
   return (
     <>
@@ -41,12 +42,26 @@ function MyListingsContent() {
         ) : listings.length === 0 ? (
           <div className="py-20 text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-              <svg className="h-8 w-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              <svg
+                className="h-8 w-8 text-muted"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
               </svg>
             </div>
-            <h3 className="font-display text-xl font-bold text-primary dark:text-white">No listings yet</h3>
-            <p className="mt-2 text-sm text-muted">Start earning by listing your study room</p>
+            <h3 className="font-display text-xl font-bold text-primary dark:text-white">
+              No listings yet
+            </h3>
+            <p className="mt-2 text-sm text-muted">
+              Start earning by listing your study room
+            </p>
             <Link href="/add-room" className="btn-primary mt-6 inline-flex">
               Add Your First Room
             </Link>

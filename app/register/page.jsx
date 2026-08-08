@@ -3,10 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+// import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import PageTitle from "@/components/PageTitle";
 import { useAuth } from "@/context/AuthContext";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "react-toastify";
 
 function validatePassword(password) {
   const errors = [];
@@ -17,7 +19,12 @@ function validatePassword(password) {
 }
 
 export default function RegisterPage() {
-  const [form, setForm] = useState({ name: "", email: "", photo: "", password: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    photo: "",
+    password: "",
+  });
   const [passwordErrors, setPasswordErrors] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const { register, googleLogin } = useAuth();
@@ -32,19 +39,47 @@ export default function RegisterPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const errors = validatePassword(form.password);
-    if (errors.length > 0) {
-      setPasswordErrors(errors);
-      return;
-    }
+    const name = e.target.name.value;
+    const email = e.target.email.value;
+    const password = e.target.password.value;
 
-    setSubmitting(true);
-    register(form);
-    setSubmitting(false);
-    toast.success("Registration successful! Please login.");
-    router.push("/login");
+    const { data, error } = await authClient.signUp.email(
+      {
+        email,
+        password,
+        name,
+      },
+      {
+        onRequest: (ctx) => {
+          toast.loading("Creating your account...", {
+            toastId: "signup",
+          });
+        },
+
+        onSuccess: (ctx) => {
+          toast.update("signup", {
+            render: "Account created successfully!",
+            type: "success",
+            isLoading: false,
+            autoClose: 2000,
+          });
+
+          // redirect to login/dashboard
+          router.push("/login");
+        },
+
+        onError: (ctx) => {
+          toast.update("signup", {
+            render: ctx.error.message,
+            type: "error",
+            isLoading: false,
+            autoClose: 3000,
+          });
+        },
+      },
+    );
   };
 
   const handleGoogle = () => {
@@ -64,14 +99,21 @@ export default function RegisterPage() {
         >
           <div className="mb-8 text-center">
             <h1 className="heading-section text-2xl">Create Account</h1>
-            <p className="mt-2 text-sm text-muted">Join StudyNook and start booking study rooms</p>
+            <p className="mt-2 text-sm text-muted">
+              Join StudyNook and start booking study rooms
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="name" className="mb-1.5 block text-sm font-medium">Name</label>
+              <label
+                htmlFor="name"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                Name
+              </label>
               <input
-                id="name"
+                name="name"
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -82,9 +124,14 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-medium">Email</label>
+              <label
+                htmlFor="email"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                Email
+              </label>
               <input
-                id="email"
+                name="email"
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -95,22 +142,14 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label htmlFor="photo" className="mb-1.5 block text-sm font-medium">Photo URL</label>
+              <label
+                htmlFor="password"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                Password
+              </label>
               <input
-                id="photo"
-                type="url"
-                value={form.photo}
-                onChange={(e) => setForm({ ...form, photo: e.target.value })}
-                className="input-field"
-                placeholder="https://example.com/photo.jpg"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium">Password</label>
-              <input
-                id="password"
+                name="password"
                 type="password"
                 value={form.password}
                 onChange={(e) => handlePasswordChange(e.target.value)}
@@ -121,9 +160,22 @@ export default function RegisterPage() {
               {passwordErrors.length > 0 && (
                 <ul className="mt-2 space-y-1">
                   {passwordErrors.map((err) => (
-                    <li key={err} className="flex items-center gap-1.5 text-xs text-danger">
-                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <li
+                      key={err}
+                      className="flex items-center gap-1.5 text-xs text-danger"
+                    >
+                      <svg
+                        className="h-3.5 w-3.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                       {err}
                     </li>
@@ -132,15 +184,29 @@ export default function RegisterPage() {
               )}
               {form.password && passwordErrors.length === 0 && (
                 <p className="mt-2 flex items-center gap-1.5 text-xs text-success">
-                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   Password meets all requirements
                 </p>
               )}
             </div>
 
-            <button type="submit" disabled={submitting || passwordErrors.length > 0} className="btn-primary w-full">
+            <button
+              type="submit"
+              disabled={submitting || passwordErrors.length > 0}
+              className="btn-primary w-full"
+            >
               {submitting ? "Creating account..." : "Register"}
             </button>
           </form>
@@ -153,17 +219,32 @@ export default function RegisterPage() {
 
           <button onClick={handleGoogle} className="btn-secondary w-full">
             <svg className="h-5 w-5" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              />
             </svg>
             Continue with Google
           </button>
 
           <p className="mt-6 text-center text-sm text-muted">
             Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-primary hover:text-accent dark:text-accent">
+            <Link
+              href="/login"
+              className="font-semibold text-primary hover:text-accent dark:text-accent"
+            >
               Login
             </Link>
           </p>

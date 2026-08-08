@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #1e3a5f;
+  --color-primary-light: #2d5a87;
+  --color-accent: #e8a838;
+  --color-accent-hover: #d4952e;
+  --color-surface: #f8f6f2;
+  --color-surface-dark: #0f1729;
+  --color-card: #ffffff;
+  --color-card-dark: #1a2332;
+  --color-muted: #64748b;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --font-display: "Playfair Display", serif;
+  --font-body: "DM Sans", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    @apply bg-surface text-gray-900 antialiased dark:bg-surface-dark dark:text-gray-100;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .heading-primary {
+    @apply font-display text-3xl font-bold tracking-tight text-primary md:text-4xl lg:text-5xl dark:text-white;
+  }
+
+  .heading-section {
+    @apply font-display text-2xl font-bold text-primary md:text-3xl dark:text-white;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-primary shadow-md transition-all duration-200 hover:bg-accent-hover hover:shadow-lg active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary/20 bg-transparent px-6 py-3 text-sm font-semibold text-primary transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 dark:border-white/20 dark:text-white dark:hover:bg-white/10;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-danger px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-red-600;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-gray-700 dark:bg-card-dark dark:focus:border-accent dark:focus:ring-accent/20;
+  }
+
+  .card-base {
+    @apply rounded-2xl border border-gray-100 bg-card shadow-sm transition-all duration-300 dark:border-gray-800 dark:bg-card-dark;
+  }
+}

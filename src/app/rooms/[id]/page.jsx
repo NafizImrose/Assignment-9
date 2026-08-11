@@ -12,8 +12,11 @@ import ConfirmModal from "@/components/ConfirmModal";
 import { useAuth } from "@/context/AuthContext";
 import { getRoomById, formatCapacity } from "@/lib/mockData";
 import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 
 export default function RoomDetailsPage() {
+  const { data: session, isPending } = authClient.useSession();
+
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuth();
@@ -46,8 +49,12 @@ export default function RoomDetailsPage() {
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-4">
         <PageTitle title="StudyNook – Room Not Found" />
         <h1 className="heading-section">Room Not Found</h1>
-        <p className="mt-2 text-muted">This room may have been removed or doesn&apos;t exist.</p>
-        <Link href="/rooms" className="btn-primary mt-6">Back to Rooms</Link>
+        <p className="mt-2 text-muted">
+          This room may have been removed or doesn&apos;t exist.
+        </p>
+        <Link href="/rooms" className="btn-primary mt-6">
+          Back to Rooms
+        </Link>
       </div>
     );
   }
@@ -89,21 +96,29 @@ export default function RoomDetailsPage() {
 
             <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
               <div className="card-base p-4 text-center">
-                <p className="text-2xl font-bold text-primary dark:text-accent">{room.bookingCount}</p>
+                <p className="text-2xl font-bold text-primary dark:text-accent">
+                  {room.bookingCount}
+                </p>
                 <p className="text-xs text-muted">Total Bookings</p>
               </div>
               <div className="card-base p-4 text-center">
-                <p className="text-2xl font-bold text-primary dark:text-accent">{room.capacity}</p>
+                <p className="text-2xl font-bold text-primary dark:text-accent">
+                  {room.capacity}
+                </p>
                 <p className="text-xs text-muted">Max Capacity</p>
               </div>
               <div className="card-base col-span-2 p-4 text-center sm:col-span-1">
-                <p className="text-sm font-bold text-primary dark:text-accent">{formatCapacity(room.capacity)}</p>
+                <p className="text-sm font-bold text-primary dark:text-accent">
+                  {formatCapacity(room.capacity)}
+                </p>
                 <p className="text-xs text-muted">Seating</p>
               </div>
             </div>
 
             <div className="mt-6">
-              <h3 className="mb-3 font-display text-lg font-bold text-primary dark:text-white">Amenities</h3>
+              <h3 className="mb-3 font-display text-lg font-bold text-primary dark:text-white">
+                Amenities
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {room.amenities.map((amenity) => (
                   <span
@@ -117,8 +132,11 @@ export default function RoomDetailsPage() {
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              {user ? (
-                <button onClick={() => setShowBooking(true)} className="btn-primary">
+              {session ? (
+                <button
+                  onClick={() => setShowBooking(true)}
+                  className="btn-primary"
+                >
                   Book Now
                 </button>
               ) : (
@@ -129,10 +147,16 @@ export default function RoomDetailsPage() {
 
               {isOwner && (
                 <>
-                  <button onClick={() => setShowEdit(true)} className="btn-secondary">
+                  <button
+                    onClick={() => setShowEdit(true)}
+                    className="btn-secondary"
+                  >
                     Edit Room
                   </button>
-                  <button onClick={() => setShowDelete(true)} className="btn-danger">
+                  <button
+                    onClick={() => setShowDelete(true)}
+                    className="btn-danger"
+                  >
                     Delete Room
                   </button>
                 </>

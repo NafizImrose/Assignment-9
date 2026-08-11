@@ -9,15 +9,15 @@ import { AMENITIES } from "@/lib/mockData";
 
 function AddRoomForm() {
   const router = useRouter();
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    image: "",
-    floor: "",
-    capacity: "",
-    hourlyRate: "",
-    amenities: [],
-  });
+  // const [form, setForm] = useState({
+  //   name: "",
+  //   description: "",
+  //   image: "",
+  //   floor: "",
+  //   capacity: "",
+  //   hourlyRate: "",
+  //   amenities: [],
+  // });
 
   const toggleAmenity = (amenity) => {
     setForm((prev) => ({
@@ -28,10 +28,25 @@ function AddRoomForm() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // const formData = new FormData(e.currentTarget);
+  //   const data = Object.fromEntries(formData.entries());
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    toast.success("Room added successfully");
-    router.push("/my-listings");
+
+    const formData = new FormData(e.currentTarget);
+
+    const data = {
+      room_name: formData.get("room_name"),
+      description: formData.get("description"),
+      image: formData.get("image"),
+      floor: formData.get("floor"),
+      capacity: Number(formData.get("capacity")),
+      hourly_rate: Number(formData.get("hourly_rate")),
+      amenities: formData.getAll("amenities"),
+    };
+
+    console.log(data);
   };
 
   return (
@@ -40,16 +55,23 @@ function AddRoomForm() {
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="heading-section">Add a Study Room</h1>
-          <p className="mt-2 text-muted">List your private study space for others to book</p>
+          <p className="mt-2 text-muted">
+            List your private study space for others to book
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="card-base space-y-5 p-6 sm:p-8">
+        <form
+          onSubmit={handleSubmit}
+          className="card-base space-y-5 p-6 sm:p-8"
+        >
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Room Name</label>
+            <label className="mb-1.5 block text-sm font-medium">
+              Room Name
+            </label>
             <input
+              name="room_name"
               type="text"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              // value={form.name}
               className="input-field"
               placeholder="e.g., Quiet Corner Studio"
               required
@@ -57,10 +79,12 @@ function AddRoomForm() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Description</label>
+            <label className="mb-1.5 block text-sm font-medium">
+              Description
+            </label>
             <textarea
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              name="description"
+              // value={form.description}
               rows={4}
               className="input-field resize-none"
               placeholder="Describe your study room..."
@@ -69,11 +93,13 @@ function AddRoomForm() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Image URL</label>
+            <label className="mb-1.5 block text-sm font-medium">
+              Image URL
+            </label>
             <input
+              name="image"
               type="url"
-              value={form.image}
-              onChange={(e) => setForm({ ...form, image: e.target.value })}
+              // value={form.image}
               className="input-field"
               placeholder="https://images.unsplash.com/..."
               required
@@ -84,21 +110,23 @@ function AddRoomForm() {
             <div>
               <label className="mb-1.5 block text-sm font-medium">Floor</label>
               <input
+                name="floor"
                 type="text"
-                value={form.floor}
-                onChange={(e) => setForm({ ...form, floor: e.target.value })}
+                // value={form.floor}
                 className="input-field"
                 placeholder="e.g., 3rd Floor"
                 required
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Capacity</label>
+              <label className="mb-1.5 block text-sm font-medium">
+                Capacity
+              </label>
               <input
+                name="capacity"
                 type="number"
                 min={1}
-                value={form.capacity}
-                onChange={(e) => setForm({ ...form, capacity: e.target.value })}
+                // value={form.capacity}
                 className="input-field"
                 placeholder="e.g., 4"
                 required
@@ -107,12 +135,15 @@ function AddRoomForm() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Hourly Rate ($)</label>
+            <label className="mb-1.5 block text-sm font-medium">
+              Hourly Rate ($)
+            </label>
             <input
+              name="hourly_rate"
               type="number"
               min={1}
-              value={form.hourlyRate}
-              onChange={(e) => setForm({ ...form, hourlyRate: e.target.value })}
+              // value={form.hourlyRate}
+
               className="input-field"
               placeholder="e.g., 5"
               required
@@ -125,16 +156,16 @@ function AddRoomForm() {
               {AMENITIES.map((amenity) => (
                 <label
                   key={amenity}
-                  className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm transition-all ${
-                    form.amenities.includes(amenity)
+                  className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm transition-all 
                       ? "border-primary bg-primary/5 dark:border-accent dark:bg-accent/10"
                       : "border-gray-200 dark:border-gray-700"
                   }`}
                 >
                   <input
+                    name="amenities"
                     type="checkbox"
-                    checked={form.amenities.includes(amenity)}
-                    onChange={() => toggleAmenity(amenity)}
+                    value={amenity}
+                    // checked={form.amenities.includes(amenity)}
                     className="h-4 w-4 rounded accent-accent"
                   />
                   {amenity}
@@ -143,7 +174,7 @@ function AddRoomForm() {
             </div>
           </div>
 
-          <button type="submit" className="btn-primary w-full">
+          <button type="submit" className="btn-primary w-full cursor-pointer">
             Add Room
           </button>
         </form>

@@ -122,22 +122,6 @@ function ProfileDropdown({ user, onLogout }) {
 
       {open && (
         <div className="absolute right-0 z-50 mt-2 w-48 rounded-xl border border-gray-100 bg-white py-2 shadow-lg dark:border-gray-700 dark:bg-card-dark">
-          <Link
-            href="/my-listings"
-            onClick={() => setOpen(false)}
-            className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-white/5"
-          >
-            My Listings
-          </Link>
-
-          <Link
-            href="/my-bookings"
-            onClick={() => setOpen(false)}
-            className="block px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-white/5"
-          >
-            My Bookings
-          </Link>
-
           <hr className="my-1 border-gray-100 dark:border-gray-700" />
 
           <button
@@ -212,7 +196,7 @@ export default function Navbar() {
             alt="StudyNook Logo"
             width={40}
             height={40}
-            className="rounded-lg"
+            className="rounded-lg dark:invert"
           />
 
           <span className="text-2xl font-bold text-primary dark:text-white">
